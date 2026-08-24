@@ -267,12 +267,12 @@
   /* ---- KR sub-table ---- */
   .kr-panel { background: #FAFAFC; border-bottom: 1px solid var(--border); }
   .kr-head-row {
-    display: grid; grid-template-columns: 1fr 100px 140px 110px 120px 220px;
+    display: grid; grid-template-columns: 1fr 118px 140px 110px 120px 220px;
     gap: 10px; padding: 8px 20px 8px 56px;
     font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-2);
   }
   .kr-row {
-    display: grid; grid-template-columns: 1fr 100px 140px 110px 120px 220px;
+    display: grid; grid-template-columns: 1fr 118px 140px 110px 120px 220px;
     gap: 10px; align-items: center;
     padding: 12px 20px 12px 56px;
     border-top: 1px solid var(--border);
@@ -295,10 +295,15 @@
   .kr-detail-input:focus { outline: none; }
   .kr-meta-line { font-size: 11px; color: var(--muted-2); font-style: italic; margin-top: 3px; }
 
-  .kr-owner-input {
-    font-size: 12.5px; color: var(--navy); font-weight: 600; background: transparent; border: none; font-family: inherit; width: 100%;
+  .kr-raci-group { display: flex; flex-direction: column; gap: 4px; }
+  .kr-raci-pill {
+    font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 999px;
+    border: none; cursor: text; font-family: inherit; width: 100%; text-align: left;
+    background: var(--role-neutral-bg); color: var(--role-neutral);
   }
-  .kr-owner-input:focus { outline: none; border-bottom: 1px solid var(--border-strong); }
+  .kr-raci-pill.r { background: var(--blue-bg); color: var(--blue); }
+  .kr-raci-pill.a { background: var(--role-a-bg); color: var(--role-a); }
+  .kr-raci-pill:focus { outline: none; box-shadow: inset 0 0 0 1px currentColor; }
 
   .kr-progress-cell { display: flex; flex-direction: column; gap: 6px; }
   .kr-progress-cell .fig { font-size: 12.5px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 4px; }
@@ -415,7 +420,7 @@
 
   function defaultKR(title) {
     return {
-      id: uid(), title: title || "New key result", detail: "", owner: "",
+      id: uid(), title: title || "New key result", detail: "", r: "", a: "",
       type: "numeric", current: 0, target: 100, unit: "%", tasks: [],
       dueDate: "", checkInComment: "", updatedAt: nowISO(), overrideStatus: null
     };
@@ -443,6 +448,10 @@
       if (!raw) return defaultState();
       const parsed = JSON.parse(raw);
       if (!parsed || !Array.isArray(parsed.objectives)) return defaultState();
+      parsed.objectives.forEach(obj => (obj.keyResults || []).forEach(kr => {
+        if (kr.r === undefined) kr.r = kr.owner || "";
+        if (kr.a === undefined) kr.a = "";
+      }));
       return parsed;
     } catch (e) { return defaultState(); }
   }
@@ -611,6 +620,20 @@
     return input;
   }
 
+  function krRaciPill(kr, key, roleClass, label) {
+    const input = el("input", {
+      class: "kr-raci-pill" + (roleClass ? " " + roleClass : ""),
+      value: kr[key] ? label + ": " + kr[key] : label + ": —"
+    });
+    input.addEventListener("focus", () => { input.value = kr[key] || ""; });
+    input.addEventListener("blur", () => {
+      kr[key] = input.value.trim();
+      save(); render();
+    });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+    return input;
+  }
+
   function renderObjective(obj, index, expected) {
     const wrap = el("div", {});
     const progress = objProgress(obj);
@@ -662,7 +685,7 @@
   function renderKRPanel(obj, expected) {
     const panel = el("div", { class: "kr-panel" });
     panel.appendChild(el("div", { class: "kr-head-row" }, [
-      el("span", { text: "KEY RESULT" }), el("span", { text: "R" }), el("span", { text: "PROGRESS" }),
+      el("span", { text: "KEY RESULT" }), el("span", { text: "R / A" }), el("span", { text: "PROGRESS" }),
       el("span", { text: "STATUS" }), el("span", { text: "DUE" }), el("span", { text: "" })
     ]));
     obj.keyResults.forEach(kr => panel.appendChild(renderKRRow(obj, kr, expected)));
@@ -700,8 +723,9 @@
 
     const main = el("div", { class: "kr-main" }, [titleRow, detailInput, metaLine]);
 
-    const ownerInput = el("input", { class: "kr-owner-input", value: kr.owner, placeholder: "—" });
-    ownerInput.addEventListener("input", () => { kr.owner = ownerInput.value; save(); });
+    const raciGroup = el("div", { class: "kr-raci-group" }, [
+      krRaciPill(kr, "r", "r", "R"), krRaciPill(kr, "a", "a", "A")
+    ]);
 
     const progressCell = el("div", { class: "kr-progress-cell" });
     if (kr.type === "numeric") {
@@ -755,7 +779,7 @@
     const taskArea = kr.type === "tasks" ? renderTaskList(obj, kr) : null;
 
     const row = el("div", { class: "kr-row" + (stale ? " stale-row" : "") }, [
-      main, ownerInput, progressCell, statusPill(status), dueInput,
+      main, raciGroup, progressCell, statusPill(status), dueInput,
       el("div", { class: "kr-actions" }, [checkInBtn, editBtn, overrideBtn, delBtn])
     ]);
 
