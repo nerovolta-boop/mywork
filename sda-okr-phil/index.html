@@ -3,462 +3,397 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SDA OKR Dashboard — Phil</title>
+<title>SDA Abodes — OKR Register</title>
 <style>
   :root {
-    color-scheme: light;
-    --navy: #2B2F7B;
-    --purple: #7E77B7;
-    --pink: #EF5896;
-    --surface-0: #F1EEFA;
-    --surface-1: #ffffff;
-    --surface-2: #FBFAFE;
-    --text-primary: #21214A;
-    --text-secondary: #5A5872;
-    --text-muted: #8886A0;
-    --gridline: #E5E4F0;
-    --border: #E5E4F0;
-    --border-strong: #C9C5E0;
-    --heading: var(--navy);
-    --series-1: var(--purple);
+    --navy: #1E1B4B;
+    --nav-bg: #1B1250;
+    --nav-bg-2: rgba(255,255,255,0.10);
+    --pink: #EC4899;
+    --page-bg: #F1EFF7;
+    --card-bg: #FFFFFF;
+    --muted: #8B8998;
+    --muted-2: #A6A4B5;
+    --border: #E8E6F0;
+    --border-strong: #D9D7E4;
+    --blue: #2563EB;
+    --blue-bg: #DBEAFE;
+    --role-a: #DB2777;
+    --role-a-bg: #FCE7F3;
+    --role-neutral: #6B7280;
+    --role-neutral-bg: #F1F0F4;
+    --behind: #C2185B;
+    --behind-bg: #FDE1EC;
+    --ontrack: #2563EB;
+    --ontrack-bg: #DFEAFE;
+    --stale: #C2760A;
+    --stale-bg: #FDECC8;
     --good: #15803d;
-    --good-bg: rgba(34,197,94,0.12);
-    --warning: #b45309;
-    --warning-bg: rgba(245,158,11,0.15);
-    --serious: #c2410c;
-    --serious-bg: rgba(234,88,12,0.14);
-    --critical: #b91c1c;
-    --critical-bg: rgba(239,68,68,0.12);
+    --good-bg: #DCFCE7;
+    --delete-bg: #F1615C;
+    --highlight-bg: #FDF6E9;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) {
-      color-scheme: dark;
-      --surface-0: #14163F;
-      --surface-1: #1E2160;
-      --surface-2: #262A70;
-      --text-primary: #ffffff;
-      --text-secondary: #C9C5E8;
-      --text-muted: #9490C4;
-      --gridline: rgba(255,255,255,0.12);
-      --border: rgba(255,255,255,0.12);
-      --border-strong: rgba(255,255,255,0.24);
-      --heading: #ffffff;
-      --series-1: var(--purple);
-      --good: #4ade80;
-      --good-bg: rgba(74,222,128,0.18);
-      --warning: #fbbf24;
-      --warning-bg: rgba(251,191,36,0.16);
-      --serious: #fb923c;
-      --serious-bg: rgba(251,146,60,0.16);
-      --critical: #f87171;
-      --critical-bg: rgba(248,113,113,0.18);
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --surface-0: #14163F;
-    --surface-1: #1E2160;
-    --surface-2: #262A70;
-    --text-primary: #ffffff;
-    --text-secondary: #C9C5E8;
-    --text-muted: #9490C4;
-    --gridline: rgba(255,255,255,0.12);
-    --border: rgba(255,255,255,0.12);
-    --border-strong: rgba(255,255,255,0.24);
-    --heading: #ffffff;
-    --series-1: var(--purple);
-    --good: #4ade80;
-    --good-bg: rgba(74,222,128,0.18);
-    --warning: #fbbf24;
-    --warning-bg: rgba(251,191,36,0.16);
-    --serious: #fb923c;
-    --serious-bg: rgba(251,146,60,0.16);
-    --critical: #f87171;
-    --critical-bg: rgba(248,113,113,0.18);
-  }
-
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--surface-0);
-    color: var(--text-primary);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--page-bg);
+    color: var(--navy);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    font-size: 14px;
   }
-  .wrap {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 0 24px 96px;
-  }
+  button { font-family: inherit; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 0 64px; }
+  .inner { padding: 0 28px; }
 
-  header.top {
-    background: linear-gradient(135deg, var(--navy) 0%, #383C9E 100%);
-    margin: 0 -24px 28px;
-    padding: 32px 24px 26px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .brand { display: flex; flex-direction: column; gap: 6px; }
-  .brand .kicker {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-  }
-  .brand h1 { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.01em; color: #ffffff; }
-  .brand .tagline { font-size: 13px; font-weight: 600; color: var(--pink); margin: 0; }
-
-  .cycle-box {
+  /* ---- Top nav ---- */
+  nav.top {
+    background: var(--nav-bg);
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(255,255,255,0.10);
-    border: 1px solid rgba(255,255,255,0.20);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: rgba(255,255,255,0.85);
+    gap: 20px;
+    padding: 0 28px;
+    height: 62px;
   }
-  .cycle-box input[type="date"] {
-    font: inherit;
-    color: #ffffff;
-    background: transparent;
-    border: none;
-    padding: 0;
-    color-scheme: dark;
-  }
-  .cycle-box span.sep { color: rgba(255,255,255,0.5); }
-
-  .stat-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-  .stat-tile {
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px 20px;
-  }
-  .stat-tile .label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-  .stat-tile .value {
-    font-size: 30px;
-    font-weight: 700;
-    color: var(--heading);
-    font-variant-numeric: proportional-nums;
-  }
-  .stat-tile .value.good { color: var(--good); }
-  .stat-tile .value.warning { color: var(--warning); }
-  .stat-tile .value.critical { color: var(--critical); }
-
-  .objectives { display: flex; flex-direction: column; gap: 16px; }
-
-  .obj-card {
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 22px;
-  }
-  .obj-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 12px;
-  }
-  .obj-title-row { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-  .obj-title-row .idx {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--navy);
-    background: rgba(126,119,183,0.14);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    width: 24px; height: 24px;
+  .logo { display: flex; align-items: center; gap: 9px; margin-right: 6px; }
+  .logo .mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--pink);
+    color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 0.02em;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .obj-title {
-    font-size: 17px;
+  .logo .word {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
     font-weight: 700;
-    background: transparent;
-    border: none;
-    color: var(--heading);
-    width: 100%;
-    font-family: inherit;
-    padding: 2px 0;
+    font-size: 19px;
+    color: #fff;
   }
-  .obj-title:focus { outline: none; border-bottom: 1px solid var(--purple); }
-
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 5px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .status-badge.good { color: var(--good); background: var(--good-bg); }
-  .status-badge.warning { color: var(--warning); background: var(--warning-bg); }
-  .status-badge.serious { color: var(--serious); background: var(--serious-bg); }
-  .status-badge.critical { color: var(--critical); background: var(--critical-bg); }
-  .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink:0; }
-
-  .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-  .progress-track {
-    position: relative;
-    flex: 1;
-    height: 10px;
-    background: var(--gridline);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    position: absolute; top: 0; left: 0; bottom: 0;
-    border-radius: 999px;
-    transition: width 240ms ease;
-  }
-  .progress-fill.good { background: var(--good); }
-  .progress-fill.warning { background: var(--warning); }
-  .progress-fill.serious { background: var(--serious); }
-  .progress-fill.critical { background: var(--critical); }
-  .expected-marker {
-    position: absolute;
-    top: -3px;
-    bottom: -3px;
-    width: 2px;
-    background: var(--text-primary);
-    opacity: 0.35;
-  }
-  .progress-pct {
-    font-size: 13px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    width: 42px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-  .progress-meta {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 14px;
-  }
-
-  .kr-list { display: flex; flex-direction: column; gap: 10px; }
-  .kr-card {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-  }
-  .kr-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .kr-title {
-    flex: 1;
-    font-size: 13.5px;
-    font-weight: 600;
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    font-family: inherit;
-    min-width: 0;
-  }
-  .kr-title:focus { outline: none; }
-  .kr-del {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 15px;
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  .kr-del:hover { color: var(--critical); background: var(--critical-bg); }
-
-  .kr-progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .kr-progress-row .progress-track { height: 7px; }
-  .kr-pct { font-size: 12px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-  .kr-status-badge { font-size: 11px; padding: 3px 8px; }
-
-  .kr-numeric-row {
+  .quarter-select {
     display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;
-  }
-  .kr-numeric-row input[type="number"] {
-    width: 72px;
-    font: inherit;
-    font-weight: 600;
-    background: var(--surface-1);
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    padding: 3px 6px;
-    color: var(--text-primary);
-  }
-  .kr-numeric-row input[type="text"].unit {
-    width: 54px;
-    font: inherit;
-    background: var(--surface-1);
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    padding: 3px 6px;
-    color: var(--text-primary);
-  }
-
-  .task-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
-  .task-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
-  .task-row input[type="checkbox"] {
-    width: 15px; height: 15px; flex-shrink: 0; accent-color: var(--good); cursor: pointer;
-  }
-  .task-row input[type="text"] {
-    flex: 1;
-    font: inherit;
+    background: var(--nav-bg-2);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
     font-size: 13px;
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    min-width: 0;
-  }
-  .task-row input[type="text"]:focus { outline: none; }
-  .task-row.done input[type="text"] { color: var(--text-muted); text-decoration: line-through; }
-  .task-del {
-    background: transparent; border: none; color: var(--text-muted);
-    cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 4px; opacity: 0.6;
-  }
-  .task-del:hover { color: var(--critical); opacity: 1; }
-
-  .kr-footer-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px;
-  }
-  .type-toggle {
-    display: flex; gap: 4px; font-size: 11px;
-  }
-  .type-toggle button {
-    background: var(--surface-1);
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-    font: inherit;
-    padding: 3px 8px;
-    border-radius: 6px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
     cursor: pointer;
   }
-  .type-toggle button.active {
-    background: var(--series-1);
-    border-color: var(--series-1);
-    color: white;
-    font-weight: 600;
-  }
-
-  .link-btn {
+  .quarter-select .chev { opacity: 0.6; font-size: 10px; }
+  .navtab {
     background: transparent;
     border: none;
-    color: var(--series-1);
-    font: inherit;
+    color: rgba(255,255,255,0.72);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .navtab:hover { background: var(--nav-bg-2); color: #fff; }
+  .navtab.active { background: var(--pink); color: #fff; }
+  .nav-spacer { flex: 1; }
+  .sync-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--nav-bg-2);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.85);
     font-size: 12.5px;
     font-weight: 600;
-    cursor: pointer;
-    padding: 4px 2px;
+    padding: 7px 13px;
+    border-radius: 999px;
   }
-  .link-btn:hover { text-decoration: underline; }
-
-  .add-obj-btn {
-    align-self: flex-start;
-    background: var(--surface-1);
-    border: 1px dashed var(--border-strong);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 14px 18px;
-    border-radius: 12px;
-    cursor: pointer;
-    text-align: left;
+  .sync-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; flex-shrink: 0; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.14);
+    color: #fff; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
   }
-  .add-obj-btn:hover { border-color: var(--series-1); color: var(--series-1); }
 
-  .obj-del-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 2px 6px;
-    border-radius: 6px;
-    flex-shrink: 0;
-  }
-  .obj-del-btn:hover { color: var(--critical); background: var(--critical-bg); }
-
-  footer.note {
-    margin-top: 28px;
-    background: var(--surface-2);
+  .cycle-editor {
+    display: none;
+    align-items: center; gap: 10px;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 16px 20px;
-    font-size: 11px;
-    color: var(--text-muted);
-    line-height: 1.6;
+    padding: 10px 16px;
+    margin: 16px 28px 0;
+    font-size: 12.5px;
+    color: var(--muted);
   }
-  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cycle-editor.open { display: flex; }
+  .cycle-editor input[type="date"] {
+    font: inherit; color: var(--navy); background: transparent; border: none; font-weight: 600;
+  }
 
-  @media (max-width: 640px) {
-    .stat-row { grid-template-columns: repeat(2, 1fr); }
-    .cycle-box { flex-wrap: wrap; }
+  /* ---- Stat strip ---- */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    padding: 22px 28px 0;
+  }
+  .stat-card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px 14px;
+  }
+  .stat-card .dot { position: absolute; top: 16px; right: 16px; width: 8px; height: 8px; border-radius: 50%; }
+  .stat-card .label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px; padding-right: 16px;
+  }
+  .stat-card .value { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1; }
+  .stat-card .value.pink { color: var(--pink); }
+  .stat-card .value.blue { color: var(--blue); }
+  .stat-card .value.behind { color: var(--behind); }
+  .stat-card .value.stale { color: var(--stale); }
+  .stat-card .caption { font-size: 11.5px; color: var(--muted-2); margin-top: 5px; }
+
+  /* ---- Completion panel ---- */
+  .completion-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 14px 28px 0;
+    padding: 22px 26px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .completion-panel .headline { min-width: 200px; }
+  .completion-panel .label {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .completion-panel .pct { font-size: 34px; font-weight: 800; color: var(--navy); line-height: 1; }
+  .completion-panel .caption { font-size: 12px; color: var(--muted-2); margin-top: 5px; }
+  .quarter-track { display: flex; align-items: flex-end; gap: 26px; flex: 1; }
+  .qtile { text-align: center; padding-bottom: 8px; border-bottom: 2px solid transparent; }
+  .qtile .qval { font-size: 15px; font-weight: 700; color: var(--muted-2); margin-bottom: 6px; }
+  .qtile .qname { font-size: 11px; color: var(--muted-2); }
+  .qtile.active { border-bottom-color: var(--navy); }
+  .qtile.active .qval { color: var(--navy); font-size: 17px; }
+  .qtile.active .qname { color: var(--navy); font-weight: 600; }
+  .compare-col { display: flex; flex-direction: column; gap: 8px; }
+  .compare-pill {
+    background: var(--role-neutral-bg); color: var(--muted-2);
+    font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px; text-align: center;
+  }
+
+  /* ---- Export banner ---- */
+  .export-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: var(--highlight-bg);
+    border: 1px solid #F4E3B8;
+    border-radius: 12px;
+    margin: 14px 28px 0;
+    padding: 14px 22px;
+    font-size: 13px;
+    color: #6B5A2E;
+  }
+  .btn-primary {
+    background: var(--navy); color: #fff; border: none;
+    font-size: 12.5px; font-weight: 700; padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+
+  /* ---- Objectives list ---- */
+  .objectives-shell {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 18px 28px 0;
+    overflow: hidden;
+  }
+  .obj-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .objectives-shell .obj-row:last-of-type { border-bottom: none; }
+  .drag-handle { color: var(--muted-2); font-size: 13px; cursor: grab; user-select: none; flex-shrink: 0; }
+  .idx-badge {
+    background: var(--role-neutral-bg); color: var(--navy);
+    font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; flex-shrink: 0;
+  }
+  .chev-btn {
+    background: transparent; border: none; color: var(--muted-2); cursor: pointer;
+    font-size: 11px; padding: 2px; flex-shrink: 0; transition: transform 150ms ease;
+  }
+  .chev-btn.open { transform: rotate(90deg); }
+  .obj-title-input {
+    font-size: 14.5px; font-weight: 700; color: var(--navy);
+    background: transparent; border: none; font-family: inherit;
+    flex: 1; min-width: 120px; padding: 3px 0;
+  }
+  .obj-title-input:focus { outline: none; border-bottom: 1px solid var(--pink); }
+  .raci-group { display: flex; gap: 6px; flex-shrink: 0; }
+  .raci-pill {
+    font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
+    background: var(--role-neutral-bg); color: var(--role-neutral);
+    border: none; cursor: text; white-space: nowrap;
+    font-family: inherit;
+  }
+  .raci-pill.r { background: var(--blue-bg); color: var(--blue); }
+  .raci-pill.a { background: var(--role-a-bg); color: var(--role-a); }
+
+  .status-pill {
+    font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
+  }
+  .status-pill.good { background: var(--ontrack-bg); color: var(--ontrack); }
+  .status-pill.warning { background: var(--stale-bg); color: var(--stale); }
+  .status-pill.serious { background: #FEE3D6; color: #C2410C; }
+  .status-pill.critical { background: var(--behind-bg); color: var(--behind); }
+
+  .obj-progress { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; width: 96px; flex-shrink: 0; }
+  .obj-progress .pct { font-size: 12.5px; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .mini-track { width: 96px; height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .mini-fill { height: 100%; background: var(--pink); border-radius: 999px; }
+
+  .row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-ghost {
+    background: #fff; border: 1px solid var(--border-strong); color: #4B4A5E;
+    font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 7px; cursor: pointer;
+  }
+  .btn-ghost:hover { background: #FAFAFC; }
+  .btn-delete {
+    background: var(--delete-bg); border: none; color: #fff;
+    font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 7px; cursor: pointer;
+  }
+  .btn-delete:hover { opacity: 0.9; }
+
+  /* ---- KR sub-table ---- */
+  .kr-panel { background: #FAFAFC; border-bottom: 1px solid var(--border); }
+  .kr-head-row {
+    display: grid; grid-template-columns: 1fr 100px 140px 110px 120px 220px;
+    gap: 10px; padding: 8px 20px 8px 56px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-2);
+  }
+  .kr-row {
+    display: grid; grid-template-columns: 1fr 100px 140px 110px 120px 220px;
+    gap: 10px; align-items: center;
+    padding: 12px 20px 12px 56px;
+    border-top: 1px solid var(--border);
+  }
+  .kr-row.stale-row { background: var(--highlight-bg); }
+  .kr-main .kr-title-row { display: flex; align-items: center; gap: 8px; }
+  .kr-title-input {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    background: transparent; border: none; font-family: inherit; padding: 2px 0; min-width: 0; flex-shrink: 1;
+  }
+  .kr-title-input:focus { outline: none; border-bottom: 1px solid var(--pink); }
+  .stale-tag {
+    background: var(--stale-bg); color: var(--stale); font-size: 9.5px; font-weight: 800;
+    letter-spacing: 0.04em; padding: 2px 7px; border-radius: 5px; flex-shrink: 0;
+  }
+  .kr-detail-input {
+    display: block; width: 100%; font-size: 11.5px; color: var(--muted); background: transparent;
+    border: none; font-family: inherit; margin-top: 3px; padding: 0;
+  }
+  .kr-detail-input:focus { outline: none; }
+  .kr-meta-line { font-size: 11px; color: var(--muted-2); font-style: italic; margin-top: 3px; }
+
+  .kr-owner-input {
+    font-size: 12.5px; color: var(--navy); font-weight: 600; background: transparent; border: none; font-family: inherit; width: 100%;
+  }
+  .kr-owner-input:focus { outline: none; border-bottom: 1px solid var(--border-strong); }
+
+  .kr-progress-cell { display: flex; flex-direction: column; gap: 6px; }
+  .kr-progress-cell .fig { font-size: 12.5px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 4px; }
+  .kr-progress-cell .fig input[type="number"] {
+    width: 44px; font: inherit; font-weight: 700; background: #fff; border: 1px solid var(--border-strong);
+    border-radius: 5px; padding: 2px 4px; color: var(--navy);
+  }
+  .kr-progress-cell .track { width: 100%; height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .kr-progress-cell .fill { height: 100%; background: var(--pink); }
+
+  .kr-due-input {
+    font: inherit; font-size: 12px; color: var(--navy); background: transparent; border: none;
+  }
+
+  .kr-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .kr-actions button { font-size: 11px; padding: 5px 10px; }
+
+  .add-kr-row {
+    text-align: center; padding: 10px; border-top: 1px solid var(--border);
+  }
+  .add-kr-row button {
+    background: transparent; border: none; color: var(--navy); font-weight: 700; font-size: 12px; cursor: pointer; padding: 4px 10px;
+  }
+  .add-kr-row button:hover { text-decoration: underline; }
+
+  .add-obj-row { display: flex; align-items: center; gap: 14px; padding: 18px 28px 0; }
+  .add-obj-btn {
+    background: var(--navy); color: #fff; border: none; font-weight: 700; font-size: 13px;
+    padding: 11px 20px; border-radius: 9px; cursor: pointer;
+  }
+  .add-obj-btn:hover { opacity: 0.9; }
+  .obj-counter { font-size: 12px; color: var(--muted-2); font-style: italic; }
+
+  select.type-select, select.status-select {
+    font: inherit; font-size: 11px; font-weight: 700; border: 1px solid var(--border-strong);
+    border-radius: 6px; padding: 4px 6px; color: var(--navy); background: #fff;
+  }
+
+  @media (max-width: 1100px) {
+    .stat-row { grid-template-columns: repeat(3, 1fr); }
+    .kr-head-row, .kr-row { grid-template-columns: 1fr 90px 120px; }
+    .kr-head-row span:nth-child(4), .kr-head-row span:nth-child(5),
+    .kr-row .kr-due-cell, .kr-row .kr-actions { display: none; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header class="top">
-    <div class="brand">
-      <div class="kicker">SDA Abodes</div>
-      <h1>OKR Dashboard</h1>
-      <p class="tagline">Your Pathway to Independence</p>
-    </div>
-    <div class="cycle-box">
-      <span>Cycle</span>
-      <input type="date" id="cycleStart" />
-      <span class="sep">→</span>
-      <input type="date" id="cycleEnd" />
-    </div>
-  </header>
+<nav class="top">
+  <div class="logo">
+    <div class="mark">SDA</div>
+    <div class="word">Abodes</div>
+  </div>
+  <button class="quarter-select" id="quarterBtn">
+    <span id="quarterLabel">Q1 FY27 (current)</span>
+    <span class="chev">▾</span>
+  </button>
+  <button class="navtab active">Register</button>
+  <button class="navtab" id="tabSummary">Quarter Summary</button>
+  <button class="navtab" id="tabAudit">Audit Log</button>
+  <div class="nav-spacer"></div>
+  <div class="sync-pill"><span class="dot"></span><span id="syncLabel">Synced just now</span></div>
+  <div class="avatar" id="avatarInitial">P</div>
+</nav>
+
+<div class="cycle-editor" id="cycleEditor">
+  <span>Cycle</span>
+  <input type="date" id="cycleStart" />
+  <span>→</span>
+  <input type="date" id="cycleEnd" />
+  <span style="color:var(--muted-2)">Editing dates recalculates the fiscal-quarter label and every key result's on-track status.</span>
+</div>
+
+<div class="wrap">
 
   <div class="stat-row" id="statRow"></div>
 
-  <div class="objectives" id="objectives"></div>
+  <div class="completion-panel" id="completionPanel"></div>
 
-  <button class="add-obj-btn" id="addObjBtn" style="margin-top:16px;">+ Add objective</button>
+  <div class="export-banner">
+    <span>📋 Weekly export reminder — back up your register state.</span>
+    <button class="btn-primary" id="exportBtn">Export now</button>
+  </div>
 
-  <footer class="note">
-    <div>Status is calculated automatically: each key result's actual progress is compared against the
-    <strong>expected pace</strong> for the current cycle (time elapsed ÷ cycle length). Toggle a key result to
-    <strong>Tasks</strong> mode to drive progress by checking off tasks, or <strong>Numeric</strong> mode to track a
-    current value against a target. Objective progress is the average of its key results. Everything saves
-    automatically in this browser.</div>
-    <div class="legend-row">
-      <span class="legend-item"><span class="dot" style="background:var(--good)"></span>On track</span>
-      <span class="legend-item"><span class="dot" style="background:var(--warning)"></span>At risk</span>
-      <span class="legend-item"><span class="dot" style="background:var(--serious)"></span>Slipping</span>
-      <span class="legend-item"><span class="dot" style="background:var(--critical)"></span>Behind</span>
-      <span class="legend-item"><span style="width:2px;height:10px;background:var(--text-primary);opacity:0.35;display:inline-block;"></span>Expected pace marker</span>
-    </div>
-  </footer>
+  <div class="objectives-shell" id="objectivesShell"></div>
+
+  <div class="add-obj-row">
+    <button class="add-obj-btn" id="addObjBtn">+ Add Objective</button>
+    <span class="obj-counter" id="objCounter"></span>
+  </div>
 
 </div>
 
@@ -466,53 +401,41 @@
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "sda-okr-phil-v1";
+  const STORAGE_KEY = "sda-okr-phil-v2";
   const uid = () => Math.random().toString(36).slice(2, 10);
-  const todayISO = () => new Date().toISOString().slice(0, 10);
+  const nowISO = () => new Date().toISOString();
 
-  function addMonths(dateStr, n) {
+  function fiscalQuarterLabel(dateStr) {
     const d = new Date(dateStr + "T00:00:00");
-    d.setMonth(d.getMonth() + n);
-    return d.toISOString().slice(0, 10);
+    const month = d.getMonth() + 1; // 1-12
+    const calYear = d.getFullYear();
+    const fyEndYear = month >= 7 ? calYear + 1 : calYear;
+    const q = month >= 7 && month <= 9 ? 1 : month >= 10 ? 2 : month <= 3 ? 3 : 4;
+    return "Q" + q + " FY" + String(fyEndYear).slice(-2);
+  }
+
+  function defaultKR(title) {
+    return {
+      id: uid(), title: title || "New key result", detail: "", owner: "",
+      type: "numeric", current: 0, target: 100, unit: "%", tasks: [],
+      dueDate: "", checkInComment: "", updatedAt: nowISO(), overrideStatus: null
+    };
+  }
+  function defaultObjective(title) {
+    return { id: uid(), title: title || "New objective", r: "", a: "", c: "", i: "", expanded: false, keyResults: [defaultKR()] };
   }
 
   function defaultState() {
-    const start = "2026-08-01";
-    const end = addMonths(start, 3);
-    return {
-      cycleStart: start,
-      cycleEnd: end,
-      objectives: [
-        {
-          id: uid(),
-          title: "New investment/sales updates",
-          keyResults: [
-            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
-          ]
-        },
-        {
-          id: uid(),
-          title: "Current investor pain points",
-          keyResults: [
-            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
-          ]
-        },
-        {
-          id: uid(),
-          title: "Acquisition update",
-          keyResults: [
-            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
-          ]
-        },
-        {
-          id: uid(),
-          title: "Build progress updates",
-          keyResults: [
-            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
-          ]
-        }
-      ]
-    };
+    const start = "2026-07-01";
+    const end = "2026-09-30";
+    const objs = [
+      defaultObjective("New investment/sales updates"),
+      defaultObjective("Current investor pain points"),
+      defaultObjective("Acquisition update"),
+      defaultObjective("Build progress updates")
+    ];
+    objs[0].expanded = true;
+    return { cycleStart: start, cycleEnd: end, objectives: objs };
   }
 
   function load() {
@@ -522,35 +445,30 @@
       const parsed = JSON.parse(raw);
       if (!parsed || !Array.isArray(parsed.objectives)) return defaultState();
       return parsed;
-    } catch (e) {
-      return defaultState();
-    }
+    } catch (e) { return defaultState(); }
   }
 
   let state = load();
+  let lastSavedAt = Date.now();
 
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    lastSavedAt = Date.now();
   }
 
   function krProgress(kr) {
     if (kr.type === "tasks") {
       if (!kr.tasks.length) return 0;
-      const done = kr.tasks.filter(t => t.done).length;
-      return (done / kr.tasks.length) * 100;
+      return (kr.tasks.filter(t => t.done).length / kr.tasks.length) * 100;
     }
     const target = Number(kr.target) || 0;
     if (target <= 0) return 0;
-    const current = Number(kr.current) || 0;
-    return Math.max(0, Math.min(100, (current / target) * 100));
+    return Math.max(0, Math.min(100, ((Number(kr.current) || 0) / target) * 100));
   }
-
   function objProgress(obj) {
     if (!obj.keyResults.length) return 0;
-    const sum = obj.keyResults.reduce((acc, kr) => acc + krProgress(kr), 0);
-    return sum / obj.keyResults.length;
+    return obj.keyResults.reduce((a, kr) => a + krProgress(kr), 0) / obj.keyResults.length;
   }
-
   function expectedPace() {
     const start = new Date(state.cycleStart + "T00:00:00").getTime();
     const end = new Date(state.cycleEnd + "T00:00:00").getTime();
@@ -558,25 +476,28 @@
     if (end <= start) return 100;
     return Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100));
   }
-
-  function statusFor(progress, expected) {
-    if (progress >= 100) return { key: "good", label: "Complete" };
+  const STATUS_LABEL = { good: "ON TRACK", warning: "AT RISK", serious: "SLIPPING", critical: "BEHIND" };
+  function statusFor(progress, expected, overrideStatus) {
+    if (overrideStatus) return { key: overrideStatus, label: STATUS_LABEL[overrideStatus] };
+    if (progress >= 100) return { key: "good", label: "ON TRACK" };
     const diff = progress - expected;
-    if (diff >= -8) return { key: "good", label: "On track" };
-    if (diff >= -20) return { key: "warning", label: "At risk" };
-    if (diff >= -35) return { key: "serious", label: "Slipping" };
-    return { key: "critical", label: "Behind" };
+    if (diff >= -8) return { key: "good", label: "ON TRACK" };
+    if (diff >= -20) return { key: "warning", label: "AT RISK" };
+    if (diff >= -35) return { key: "serious", label: "SLIPPING" };
+    return { key: "critical", label: "BEHIND" };
   }
-
-  function fmtPct(n) { return Math.round(n) + "%"; }
-
-  function fmtDaysLeft() {
-    const end = new Date(state.cycleEnd + "T00:00:00").getTime();
-    const now = new Date(new Date().toISOString().slice(0,10) + "T00:00:00").getTime();
-    const days = Math.round((end - now) / 86400000);
-    if (days < 0) return "Cycle ended";
-    if (days === 0) return "Ends today";
-    return days + " day" + (days === 1 ? "" : "s") + " left";
+  function isStale(kr) {
+    const updated = new Date(kr.updatedAt).getTime();
+    return (Date.now() - updated) / 86400000 > 7;
+  }
+  function fmtUpdated(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) +
+      ", " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+  function fmtDue(dateStr) {
+    if (!dateStr) return "No due date";
+    return new Date(dateStr + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
   }
 
   function el(tag, attrs, children) {
@@ -591,190 +512,315 @@
     return node;
   }
 
-  function statusBadge(status, extraClass) {
-    return el("span", { class: "status-badge " + status.key + (extraClass ? " " + extraClass : "") }, [
-      el("span", { class: "dot" }),
-      document.createTextNode(status.label)
-    ]);
+  function statusPill(status) {
+    return el("span", { class: "status-pill " + status.key, text: status.label });
   }
 
-  function progressBar(progress, status, expected, big) {
-    const track = el("div", { class: "progress-track" });
-    const fill = el("div", { class: "progress-fill " + status.key });
-    fill.style.width = Math.max(0, Math.min(100, progress)) + "%";
-    track.appendChild(fill);
-    if (typeof expected === "number") {
-      const marker = el("div", { class: "expected-marker" });
-      marker.style.left = Math.max(0, Math.min(100, expected)) + "%";
-      track.appendChild(marker);
-    }
-    return track;
-  }
-
+  // ---------------- render ----------------
   function render() {
     document.getElementById("cycleStart").value = state.cycleStart;
     document.getElementById("cycleEnd").value = state.cycleEnd;
+    document.getElementById("quarterLabel").textContent = fiscalQuarterLabel(state.cycleStart) + " (current)";
 
     const expected = expectedPace();
-
-    // stats
-    const statRow = document.getElementById("statRow");
-    statRow.innerHTML = "";
+    const allKRs = state.objectives.flatMap(o => o.keyResults);
     const objCount = state.objectives.length;
     const avgProgress = objCount ? state.objectives.reduce((a, o) => a + objProgress(o), 0) / objCount : 0;
-    const statuses = state.objectives.map(o => statusFor(objProgress(o), expected));
-    const onTrack = statuses.filter(s => s.key === "good").length;
-    const behind = statuses.filter(s => s.key === "critical" || s.key === "serious").length;
-    const avgStatus = statusFor(avgProgress, expected);
+    const objStatuses = state.objectives.map(o => statusFor(objProgress(o), expected, null));
+    const onTrack = objStatuses.filter(s => s.key === "good").length;
+    const behindAtRisk = objStatuses.filter(s => s.key !== "good").length;
+    const completedKRs = allKRs.filter(kr => krProgress(kr) >= 100).length;
+    const staleKRs = allKRs.filter(isStale).length;
 
-    statRow.appendChild(makeStat("Objectives", String(objCount), null));
-    statRow.appendChild(makeStat("Avg. progress", fmtPct(avgProgress), avgStatus.key));
-    statRow.appendChild(makeStat("On track", onTrack + " / " + objCount, onTrack === objCount && objCount > 0 ? "good" : null));
-    statRow.appendChild(makeStat("Cycle", fmtDaysLeft(), behind > 0 ? "warning" : null));
+    renderStats(objCount, avgProgress, onTrack, behindAtRisk, allKRs.length, completedKRs, staleKRs);
+    renderCompletionPanel(avgProgress);
 
-    // objectives
-    const container = document.getElementById("objectives");
-    container.innerHTML = "";
-    state.objectives.forEach((obj, i) => container.appendChild(renderObjective(obj, i, expected)));
+    const shell = document.getElementById("objectivesShell");
+    shell.innerHTML = "";
+    state.objectives.forEach((obj, i) => shell.appendChild(renderObjective(obj, i, expected)));
+
+    document.getElementById("objCounter").textContent =
+      "(" + objCount + " objective" + (objCount === 1 ? "" : "s") + " this quarter)";
   }
 
-  function makeStat(label, value, statusClass) {
-    return el("div", { class: "stat-tile" }, [
+  function statCard(label, value, valueClass, caption, dotColor) {
+    return el("div", { class: "stat-card" }, [
+      el("span", { class: "dot", style: "background:" + dotColor }),
       el("div", { class: "label", text: label }),
-      el("div", { class: "value" + (statusClass ? " " + statusClass : ""), text: value })
+      el("div", { class: "value" + (valueClass ? " " + valueClass : ""), text: value }),
+      el("div", { class: "caption", text: caption })
     ]);
   }
 
-  function renderObjective(obj, index, expected) {
-    const progress = objProgress(obj);
-    const status = statusFor(progress, expected);
+  function renderStats(objCount, avgProgress, onTrack, behindAtRisk, krCount, completedKRs, staleKRs) {
+    const row = document.getElementById("statRow");
+    row.innerHTML = "";
+    row.appendChild(statCard("Objectives", String(objCount), null, "this quarter", "var(--pink)"));
+    row.appendChild(statCard("Avg Progress", Math.round(avgProgress) + "%", null, "across KRs", "var(--good)"));
+    row.appendChild(statCard("On Track", String(onTrack), "blue", "objectives", "var(--blue)"));
+    row.appendChild(statCard("Behind / At Risk", String(behindAtRisk), "behind", "need attention", "var(--behind)"));
+    row.appendChild(statCard("Key Results", String(krCount), null, completedKRs + " completed", "#7E77B7"));
+    row.appendChild(statCard("Stale KRs", String(staleKRs), "stale", "> 7 days no update", "var(--stale)"));
+  }
 
-    const titleInput = el("input", { class: "obj-title", value: obj.title, placeholder: "Objective title" });
+  function renderCompletionPanel(avgProgress) {
+    const panel = document.getElementById("completionPanel");
+    panel.innerHTML = "";
+    const qLabel = fiscalQuarterLabel(state.cycleStart);
+
+    const headline = el("div", { class: "headline" }, [
+      el("div", { class: "label", text: "Overall OKR Completion · " + qLabel }),
+      el("div", { class: "pct", text: Math.round(avgProgress) + "%" }),
+      el("div", { class: "caption", text: "% of KRs Completed" })
+    ]);
+
+    const track = el("div", { class: "quarter-track" });
+    ["Q2 FY26", "Q3 FY26", "Q4 FY26"].forEach(name => {
+      track.appendChild(el("div", { class: "qtile" }, [
+        el("div", { class: "qval", text: "—" }),
+        el("div", { class: "qname", text: name })
+      ]));
+    });
+    track.appendChild(el("div", { class: "qtile active" }, [
+      el("div", { class: "qval", text: Math.round(avgProgress) + "%" }),
+      el("div", { class: "qname", text: qLabel })
+    ]));
+
+    const compareCol = el("div", { class: "compare-col" }, [
+      el("div", { class: "compare-pill", text: "— no data vs Q4 FY26" }),
+      el("div", { class: "compare-pill", text: "— no data vs Q1 FY26" })
+    ]);
+
+    panel.appendChild(headline);
+    panel.appendChild(track);
+    panel.appendChild(compareCol);
+  }
+
+  function raciPill(obj, key, roleClass) {
+    const labels = { r: "R", a: "A", c: "C", i: "I" };
+    const input = el("input", {
+      class: "raci-pill" + (roleClass ? " " + roleClass : ""),
+      value: (obj[key] ? labels[key] + ": " + obj[key] : labels[key] + ": —"),
+      style: "width:" + Math.max(40, (obj[key] ? obj[key].length : 1) * 7 + 26) + "px"
+    });
+    input.addEventListener("focus", () => { input.value = obj[key] || ""; });
+    input.addEventListener("blur", () => {
+      obj[key] = input.value.trim();
+      save(); render();
+    });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+    return input;
+  }
+
+  function renderObjective(obj, index, expected) {
+    const wrap = el("div", {});
+    const progress = objProgress(obj);
+    const status = statusFor(progress, expected, null);
+
+    const titleInput = el("input", { class: "obj-title-input", value: obj.title, placeholder: "Objective title" });
     titleInput.addEventListener("input", () => { obj.title = titleInput.value; save(); });
 
-    const delBtn = el("button", { class: "obj-del-btn", text: "✕", title: "Delete objective" });
+    const chev = el("button", { class: "chev-btn" + (obj.expanded ? " open" : ""), text: "▸" });
+    chev.addEventListener("click", () => { obj.expanded = !obj.expanded; save(); render(); });
+
+    const raciGroup = el("div", { class: "raci-group" }, [
+      raciPill(obj, "r", "r"), raciPill(obj, "a", "a"), raciPill(obj, "c", ""), raciPill(obj, "i", "")
+    ]);
+
+    const progressCell = el("div", { class: "obj-progress" }, [
+      el("div", { class: "pct", text: Math.round(progress) + "%" }),
+      el("div", { class: "mini-track" }, [
+        (() => { const f = el("div", { class: "mini-fill" }); f.style.width = Math.max(2, progress) + "%"; return f; })()
+      ])
+    ]);
+
+    const editBtn = el("button", { class: "btn-ghost", text: "Edit" });
+    editBtn.addEventListener("click", () => { obj.expanded = !obj.expanded; save(); render(); });
+    const delBtn = el("button", { class: "btn-delete", text: "Delete" });
     delBtn.addEventListener("click", () => {
-      if (!confirm("Delete this objective and its key results?")) return;
+      if (!confirm('Delete objective "' + obj.title + '" and its key results?')) return;
       state.objectives = state.objectives.filter(o => o.id !== obj.id);
       save(); render();
     });
 
-    const head = el("div", { class: "obj-head" }, [
-      el("div", { class: "obj-title-row" }, [
-        el("div", { class: "idx", text: String(index + 1) }),
-        titleInput
-      ]),
-      el("div", { style: "display:flex;align-items:center;gap:6px;" }, [statusBadge(status), delBtn])
+    const row = el("div", { class: "obj-row" }, [
+      el("span", { class: "drag-handle", text: "⠿" }),
+      el("span", { class: "idx-badge", text: "#" + (index + 1) }),
+      chev,
+      titleInput,
+      raciGroup,
+      statusPill(status),
+      progressCell,
+      el("div", { class: "row-actions" }, [editBtn, delBtn])
     ]);
+    wrap.appendChild(row);
 
-    const progressRow = el("div", { class: "progress-row" }, [
-      progressBar(progress, status, expected),
-      el("div", { class: "progress-pct", text: fmtPct(progress) })
-    ]);
+    if (obj.expanded) wrap.appendChild(renderKRPanel(obj, expected));
 
-    const meta = el("div", { class: "progress-meta" },
-      [document.createTextNode("Expected pace: " + fmtPct(expected) + " · " + obj.keyResults.length + " key result" + (obj.keyResults.length === 1 ? "" : "s"))]
-    );
-
-    const krList = el("div", { class: "kr-list" });
-    obj.keyResults.forEach(kr => krList.appendChild(renderKR(obj, kr, expected)));
-
-    const addKrBtn = el("button", { class: "link-btn", text: "+ Add key result" });
-    addKrBtn.addEventListener("click", () => {
-      obj.keyResults.push({ id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] });
-      save(); render();
-    });
-
-    const card = el("div", { class: "obj-card" }, [head, progressRow, meta, krList, addKrBtn]);
-    return card;
+    return wrap;
   }
 
-  function renderKR(obj, kr, expected) {
+  function renderKRPanel(obj, expected) {
+    const panel = el("div", { class: "kr-panel" });
+    panel.appendChild(el("div", { class: "kr-head-row" }, [
+      el("span", { text: "KEY RESULT" }), el("span", { text: "R" }), el("span", { text: "PROGRESS" }),
+      el("span", { text: "STATUS" }), el("span", { text: "DUE" }), el("span", { text: "" })
+    ]));
+    obj.keyResults.forEach(kr => panel.appendChild(renderKRRow(obj, kr, expected)));
+
+    const addRow = el("div", { class: "add-kr-row" });
+    const addBtn = el("button", { text: "+ Add Key Result" });
+    addBtn.addEventListener("click", () => {
+      obj.keyResults.push(defaultKR());
+      save(); render();
+    });
+    addRow.appendChild(addBtn);
+    panel.appendChild(addRow);
+    return panel;
+  }
+
+  function renderKRRow(obj, kr, expected) {
     const progress = krProgress(kr);
-    const status = statusFor(progress, expected);
+    const status = statusFor(progress, expected, kr.overrideStatus);
+    const stale = isStale(kr);
 
-    const titleInput = el("input", { class: "kr-title", value: kr.title, placeholder: "Key result" });
+    const titleInput = el("input", { class: "kr-title-input", value: kr.title, placeholder: "Key result" });
     titleInput.addEventListener("input", () => { kr.title = titleInput.value; save(); });
+    const titleRow = el("div", { class: "kr-title-row" }, [titleInput]);
+    if (stale) titleRow.appendChild(el("span", { class: "stale-tag", text: "STALE" }));
 
-    const delBtn = el("button", { class: "kr-del", text: "✕", title: "Delete key result" });
+    const detailInput = el("input", { class: "kr-detail-input", value: kr.detail, placeholder: "Add a detail line (baseline → target)…" });
+    detailInput.addEventListener("input", () => { kr.detail = detailInput.value; save(); });
+
+    const metaLine = el("div", { class: "kr-meta-line" }, [
+      document.createTextNode(
+        (kr.checkInComment ? '"' + kr.checkInComment + '"' : "No check-in comment yet.") +
+        "  ·  Updated " + fmtUpdated(kr.updatedAt)
+      )
+    ]);
+
+    const main = el("div", { class: "kr-main" }, [titleRow, detailInput, metaLine]);
+
+    const ownerInput = el("input", { class: "kr-owner-input", value: kr.owner, placeholder: "—" });
+    ownerInput.addEventListener("input", () => { kr.owner = ownerInput.value; save(); });
+
+    const progressCell = el("div", { class: "kr-progress-cell" });
+    if (kr.type === "numeric") {
+      const cur = el("input", { type: "number", value: kr.current });
+      cur.addEventListener("input", () => { kr.current = Number(cur.value) || 0; save(); render(); });
+      progressCell.appendChild(el("div", { class: "fig" }, [
+        cur, document.createTextNode("/ " + (Number(kr.target) || 0) + " (" + Math.round(progress) + "%)")
+      ]));
+    } else {
+      const done = kr.tasks.filter(t => t.done).length;
+      progressCell.appendChild(el("div", { class: "fig", text: done + "/" + kr.tasks.length + " tasks (" + Math.round(progress) + "%)" }));
+    }
+    const track = el("div", { class: "track" });
+    const fill = el("div", { class: "fill" }); fill.style.width = Math.max(2, progress) + "%";
+    track.appendChild(fill);
+    progressCell.appendChild(track);
+
+    const dueInput = el("input", { type: "date", class: "kr-due-input", value: kr.dueDate || "" });
+    dueInput.addEventListener("change", () => { kr.dueDate = dueInput.value; save(); render(); });
+
+    const checkInBtn = el("button", { class: "btn-ghost", text: "Check-in" });
+    checkInBtn.addEventListener("click", () => {
+      const comment = prompt("Check-in comment for \"" + kr.title + "\":", kr.checkInComment || "");
+      if (comment === null) return;
+      kr.checkInComment = comment;
+      kr.updatedAt = nowISO();
+      save(); render();
+    });
+    const editBtn = el("button", { class: "btn-ghost", text: "Edit" });
+    editBtn.addEventListener("click", () => {
+      kr.type = kr.type === "numeric" ? "tasks" : "numeric";
+      if (kr.type === "tasks" && !kr.tasks.length) kr.tasks.push({ id: uid(), label: "New task", done: false });
+      kr.updatedAt = nowISO();
+      save(); render();
+    });
+    const overrideBtn = el("button", { class: "btn-ghost", text: "Override" });
+    overrideBtn.addEventListener("click", () => {
+      const choice = prompt("Force status for \"" + kr.title + "\" — type one of:\non track / at risk / slipping / behind\n(leave blank to clear override and use automatic pacing)", kr.overrideStatus ? STATUS_LABEL[kr.overrideStatus] : "");
+      if (choice === null) return;
+      const map = { "on track": "good", "at risk": "warning", "slipping": "serious", "behind": "critical" };
+      kr.overrideStatus = map[choice.trim().toLowerCase()] || null;
+      kr.updatedAt = nowISO();
+      save(); render();
+    });
+    const delBtn = el("button", { class: "btn-delete", text: "Delete" });
     delBtn.addEventListener("click", () => {
       obj.keyResults = obj.keyResults.filter(k => k.id !== kr.id);
       save(); render();
     });
 
-    const top = el("div", { class: "kr-top" }, [titleInput, delBtn]);
+    const taskArea = kr.type === "tasks" ? renderTaskList(obj, kr) : null;
 
-    const progRow = el("div", { class: "kr-progress-row" }, [
-      progressBar(progress, status, expected),
-      el("div", { class: "kr-pct", text: fmtPct(progress) }),
-      statusBadge(status, "kr-status-badge")
+    const row = el("div", { class: "kr-row" + (stale ? " stale-row" : "") }, [
+      main, ownerInput, progressCell, statusPill(status), dueInput,
+      el("div", { class: "kr-actions" }, [checkInBtn, editBtn, overrideBtn, delBtn])
     ]);
 
-    const body = el("div", {});
-
-    if (kr.type === "numeric") {
-      const currentInput = el("input", { type: "number", value: kr.current });
-      currentInput.addEventListener("input", () => { kr.current = Number(currentInput.value) || 0; save(); render(); });
-      const targetInput = el("input", { type: "number", value: kr.target });
-      targetInput.addEventListener("input", () => { kr.target = Number(targetInput.value) || 0; save(); render(); });
-      const unitInput = el("input", { type: "text", class: "unit", value: kr.unit || "" , placeholder: "unit"});
-      unitInput.addEventListener("input", () => { kr.unit = unitInput.value; save(); });
-
-      body.appendChild(el("div", { class: "kr-numeric-row" }, [
-        document.createTextNode("Current"), currentInput,
-        document.createTextNode("/ Target"), targetInput,
-        unitInput
-      ]));
-    } else {
-      const taskList = el("div", { class: "task-list" });
-      kr.tasks.forEach(task => {
-        const cb = el("input", { type: "checkbox" });
-        cb.checked = !!task.done;
-        cb.addEventListener("change", () => { task.done = cb.checked; save(); render(); });
-
-        const label = el("input", { type: "text", value: task.label, placeholder: "Task" });
-        label.addEventListener("input", () => { task.label = label.value; save(); });
-
-        const del = el("button", { class: "task-del", text: "✕" });
-        del.addEventListener("click", () => {
-          kr.tasks = kr.tasks.filter(t => t.id !== task.id);
-          save(); render();
-        });
-
-        taskList.appendChild(el("div", { class: "task-row" + (task.done ? " done" : "") }, [cb, label, del]));
-      });
-      body.appendChild(taskList);
-
-      const addTaskBtn = el("button", { class: "link-btn", text: "+ Add task" });
-      addTaskBtn.addEventListener("click", () => {
-        kr.tasks.push({ id: uid(), label: "New task", done: false });
-        save(); render();
-      });
-      body.appendChild(addTaskBtn);
+    if (taskArea) {
+      const fullRow = el("div", {});
+      fullRow.appendChild(row);
+      fullRow.appendChild(taskArea);
+      return fullRow;
     }
+    return row;
+  }
 
-    const toggleWrap = el("div", { class: "type-toggle" });
-    const btnNumeric = el("button", { text: "Numeric", class: kr.type === "numeric" ? "active" : "" });
-    const btnTasks = el("button", { text: "Tasks", class: kr.type === "tasks" ? "active" : "" });
-    btnNumeric.addEventListener("click", () => { kr.type = "numeric"; save(); render(); });
-    btnTasks.addEventListener("click", () => { kr.type = "tasks"; save(); render(); });
-    toggleWrap.appendChild(btnNumeric);
-    toggleWrap.appendChild(btnTasks);
-
-    const footerRow = el("div", { class: "kr-footer-row" }, [toggleWrap]);
-
-    return el("div", { class: "kr-card" }, [top, progRow, body, footerRow]);
+  function renderTaskList(obj, kr) {
+    const wrap = el("div", { style: "padding:0 20px 14px 56px;" });
+    const list = el("div", { style: "display:flex;flex-direction:column;gap:4px;" });
+    kr.tasks.forEach(task => {
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = !!task.done;
+      cb.style.accentColor = "var(--pink)";
+      cb.addEventListener("change", () => { task.done = cb.checked; kr.updatedAt = nowISO(); save(); render(); });
+      const label = el("input", { type: "text", value: task.label, placeholder: "Task", style: "flex:1;font:inherit;font-size:12.5px;border:none;background:transparent;color:var(--navy);" });
+      label.addEventListener("input", () => { task.label = label.value; save(); });
+      const del = el("button", { text: "✕", style: "background:transparent;border:none;color:var(--muted-2);cursor:pointer;font-size:12px;" });
+      del.addEventListener("click", () => { kr.tasks = kr.tasks.filter(t => t.id !== task.id); save(); render(); });
+      list.appendChild(el("div", { style: "display:flex;align-items:center;gap:8px;" }, [cb, label, del]));
+    });
+    const addBtn = el("button", { text: "+ Add task", style: "background:transparent;border:none;color:var(--navy);font-weight:700;font-size:11.5px;cursor:pointer;padding:4px 0;" });
+    addBtn.addEventListener("click", () => { kr.tasks.push({ id: uid(), label: "New task", done: false }); save(); render(); });
+    wrap.appendChild(list);
+    wrap.appendChild(addBtn);
+    return wrap;
   }
 
   document.getElementById("cycleStart").addEventListener("change", (e) => { state.cycleStart = e.target.value; save(); render(); });
   document.getElementById("cycleEnd").addEventListener("change", (e) => { state.cycleEnd = e.target.value; save(); render(); });
+  document.getElementById("quarterBtn").addEventListener("click", () => {
+    document.getElementById("cycleEditor").classList.toggle("open");
+  });
   document.getElementById("addObjBtn").addEventListener("click", () => {
-    state.objectives.push({
-      id: uid(), title: "New objective",
-      keyResults: [{ id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }]
-    });
+    state.objectives.push(defaultObjective("New objective"));
     save(); render();
   });
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "sda-okr-register-" + state.cycleStart + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("tabSummary").addEventListener("click", () => {
+    alert("Quarter Summary is not built yet in this register — the objective list below already rolls every key result up into the stat strip and completion panel above.");
+  });
+  document.getElementById("tabAudit").addEventListener("click", () => {
+    alert("Audit Log is not built yet in this register.");
+  });
+
+  setInterval(() => {
+    const secs = Math.round((Date.now() - lastSavedAt) / 1000);
+    const label = document.getElementById("syncLabel");
+    if (secs < 5) label.textContent = "Synced just now";
+    else if (secs < 60) label.textContent = "Synced " + secs + "s ago";
+    else label.textContent = "Synced " + Math.round(secs / 60) + "m ago";
+  }, 3000);
 
   render();
 })();
