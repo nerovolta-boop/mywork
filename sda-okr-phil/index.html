@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SDA OKR Dashboard — Phil</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-0: #f9f9f7;
+    --surface-1: #fcfcfb;
+    --surface-2: #ffffff;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --gridline: #e1e0d9;
+    --border: rgba(11,11,11,0.10);
+    --border-strong: #c3c2b7;
+    --series-1: #2a78d6;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.10);
+    --warning: #c98500;
+    --warning-bg: rgba(250,178,25,0.16);
+    --serious: #ec835a;
+    --serious-bg: rgba(236,131,90,0.14);
+    --critical: #d03b3b;
+    --critical-bg: rgba(208,59,59,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-0: #0d0d0d;
+      --surface-1: #1a1a19;
+      --surface-2: #212120;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --gridline: #2c2c2a;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: #383835;
+      --series-1: #3987e5;
+      --good: #0ca30c;
+      --good-bg: rgba(12,163,12,0.16);
+      --warning: #fab219;
+      --warning-bg: rgba(250,178,25,0.14);
+      --serious: #ec835a;
+      --serious-bg: rgba(236,131,90,0.16);
+      --critical: #e66767;
+      --critical-bg: rgba(230,103,103,0.16);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-0: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #212120;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --border: rgba(255,255,255,0.10);
+    --border-strong: #383835;
+    --series-1: #3987e5;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.16);
+    --warning: #fab219;
+    --warning-bg: rgba(250,178,25,0.14);
+    --serious: #ec835a;
+    --serious-bg: rgba(236,131,90,0.16);
+    --critical: #e66767;
+    --critical-bg: rgba(230,103,103,0.16);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; flex-direction: column; gap: 4px; }
+  .brand .kicker {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .brand h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+
+  .cycle-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .cycle-box input[type="date"] {
+    font: inherit;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  .cycle-box span.sep { color: var(--text-muted); }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .stat-tile .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .stat-tile .value {
+    font-size: 26px;
+    font-weight: 700;
+    font-variant-numeric: proportional-nums;
+  }
+  .stat-tile .value.good { color: var(--good); }
+  .stat-tile .value.warning { color: var(--warning); }
+  .stat-tile .value.critical { color: var(--critical); }
+
+  .objectives { display: flex; flex-direction: column; gap: 16px; }
+
+  .obj-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .obj-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .obj-title-row { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .obj-title-row .idx {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .obj-title {
+    font-size: 17px;
+    font-weight: 650;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    width: 100%;
+    font-family: inherit;
+    padding: 2px 0;
+  }
+  .obj-title:focus { outline: none; border-bottom: 1px solid var(--series-1); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .status-badge.good { color: var(--good); background: var(--good-bg); }
+  .status-badge.warning { color: var(--warning); background: var(--warning-bg); }
+  .status-badge.serious { color: var(--serious); background: var(--serious-bg); }
+  .status-badge.critical { color: var(--critical); background: var(--critical-bg); }
+  .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink:0; }
+
+  .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .progress-track {
+    position: relative;
+    flex: 1;
+    height: 10px;
+    background: var(--gridline);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    border-radius: 999px;
+    transition: width 240ms ease;
+  }
+  .progress-fill.good { background: var(--good); }
+  .progress-fill.warning { background: var(--warning); }
+  .progress-fill.serious { background: var(--serious); }
+  .progress-fill.critical { background: var(--critical); }
+  .expected-marker {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--text-primary);
+    opacity: 0.35;
+  }
+  .progress-pct {
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    width: 42px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .progress-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .kr-list { display: flex; flex-direction: column; gap: 10px; }
+  .kr-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .kr-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .kr-title {
+    flex: 1;
+    font-size: 13.5px;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    min-width: 0;
+  }
+  .kr-title:focus { outline: none; }
+  .kr-del {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .kr-del:hover { color: var(--critical); background: var(--critical-bg); }
+
+  .kr-progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .kr-progress-row .progress-track { height: 7px; }
+  .kr-pct { font-size: 12px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .kr-status-badge { font-size: 11px; padding: 3px 8px; }
+
+  .kr-numeric-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;
+  }
+  .kr-numeric-row input[type="number"] {
+    width: 72px;
+    font: inherit;
+    font-weight: 600;
+    background: var(--surface-1);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 3px 6px;
+    color: var(--text-primary);
+  }
+  .kr-numeric-row input[type="text"].unit {
+    width: 54px;
+    font: inherit;
+    background: var(--surface-1);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 3px 6px;
+    color: var(--text-primary);
+  }
+
+  .task-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .task-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .task-row input[type="checkbox"] {
+    width: 15px; height: 15px; flex-shrink: 0; accent-color: var(--good); cursor: pointer;
+  }
+  .task-row input[type="text"] {
+    flex: 1;
+    font: inherit;
+    font-size: 13px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    min-width: 0;
+  }
+  .task-row input[type="text"]:focus { outline: none; }
+  .task-row.done input[type="text"] { color: var(--text-muted); text-decoration: line-through; }
+  .task-del {
+    background: transparent; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 4px; opacity: 0.6;
+  }
+  .task-del:hover { color: var(--critical); opacity: 1; }
+
+  .kr-footer-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px;
+  }
+  .type-toggle {
+    display: flex; gap: 4px; font-size: 11px;
+  }
+  .type-toggle button {
+    background: var(--surface-1);
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    font: inherit;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .type-toggle button.active {
+    background: var(--series-1);
+    border-color: var(--series-1);
+    color: white;
+    font-weight: 600;
+  }
+
+  .link-btn {
+    background: transparent;
+    border: none;
+    color: var(--series-1);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 2px;
+  }
+  .link-btn:hover { text-decoration: underline; }
+
+  .add-obj-btn {
+    align-self: flex-start;
+    background: var(--surface-1);
+    border: 1px dashed var(--border-strong);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .add-obj-btn:hover { border-color: var(--series-1); color: var(--series-1); }
+
+  .obj-del-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .obj-del-btn:hover { color: var(--critical); background: var(--critical-bg); }
+
+  footer.note {
+    margin-top: 28px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  @media (max-width: 640px) {
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .cycle-box { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="kicker">SDA Abodes</div>
+      <h1>OKR Dashboard</h1>
+    </div>
+    <div class="cycle-box">
+      <span>Cycle</span>
+      <input type="date" id="cycleStart" />
+      <span class="sep">→</span>
+      <input type="date" id="cycleEnd" />
+    </div>
+  </header>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <div class="objectives" id="objectives"></div>
+
+  <button class="add-obj-btn" id="addObjBtn" style="margin-top:16px;">+ Add objective</button>
+
+  <footer class="note">
+    <div>Status is calculated automatically: each key result's actual progress is compared against the
+    <strong>expected pace</strong> for the current cycle (time elapsed ÷ cycle length). Toggle a key result to
+    <strong>Tasks</strong> mode to drive progress by checking off tasks, or <strong>Numeric</strong> mode to track a
+    current value against a target. Objective progress is the average of its key results. Everything saves
+    automatically in this browser.</div>
+    <div class="legend-row">
+      <span class="legend-item"><span class="dot" style="background:var(--good)"></span>On track</span>
+      <span class="legend-item"><span class="dot" style="background:var(--warning)"></span>At risk</span>
+      <span class="legend-item"><span class="dot" style="background:var(--serious)"></span>Slipping</span>
+      <span class="legend-item"><span class="dot" style="background:var(--critical)"></span>Behind</span>
+      <span class="legend-item"><span style="width:2px;height:10px;background:var(--text-primary);opacity:0.35;display:inline-block;"></span>Expected pace marker</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "sda-okr-phil-v1";
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+
+  function addMonths(dateStr, n) {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setMonth(d.getMonth() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function defaultState() {
+    const start = "2026-08-01";
+    const end = addMonths(start, 3);
+    return {
+      cycleStart: start,
+      cycleEnd: end,
+      objectives: [
+        {
+          id: uid(),
+          title: "New investment/sales updates",
+          keyResults: [
+            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
+          ]
+        },
+        {
+          id: uid(),
+          title: "Current investor pain points",
+          keyResults: [
+            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
+          ]
+        },
+        {
+          id: uid(),
+          title: "Acquisition update",
+          keyResults: [
+            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
+          ]
+        },
+        {
+          id: uid(),
+          title: "Build progress updates",
+          keyResults: [
+            { id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }
+          ]
+        }
+      ]
+    };
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.objectives)) return defaultState();
+      return parsed;
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  let state = load();
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function krProgress(kr) {
+    if (kr.type === "tasks") {
+      if (!kr.tasks.length) return 0;
+      const done = kr.tasks.filter(t => t.done).length;
+      return (done / kr.tasks.length) * 100;
+    }
+    const target = Number(kr.target) || 0;
+    if (target <= 0) return 0;
+    const current = Number(kr.current) || 0;
+    return Math.max(0, Math.min(100, (current / target) * 100));
+  }
+
+  function objProgress(obj) {
+    if (!obj.keyResults.length) return 0;
+    const sum = obj.keyResults.reduce((acc, kr) => acc + krProgress(kr), 0);
+    return sum / obj.keyResults.length;
+  }
+
+  function expectedPace() {
+    const start = new Date(state.cycleStart + "T00:00:00").getTime();
+    const end = new Date(state.cycleEnd + "T00:00:00").getTime();
+    const now = Date.now();
+    if (end <= start) return 100;
+    return Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100));
+  }
+
+  function statusFor(progress, expected) {
+    if (progress >= 100) return { key: "good", label: "Complete" };
+    const diff = progress - expected;
+    if (diff >= -8) return { key: "good", label: "On track" };
+    if (diff >= -20) return { key: "warning", label: "At risk" };
+    if (diff >= -35) return { key: "serious", label: "Slipping" };
+    return { key: "critical", label: "Behind" };
+  }
+
+  function fmtPct(n) { return Math.round(n) + "%"; }
+
+  function fmtDaysLeft() {
+    const end = new Date(state.cycleEnd + "T00:00:00").getTime();
+    const now = new Date(new Date().toISOString().slice(0,10) + "T00:00:00").getTime();
+    const days = Math.round((end - now) / 86400000);
+    if (days < 0) return "Cycle ended";
+    if (days === 0) return "Ends today";
+    return days + " day" + (days === 1 ? "" : "s") + " left";
+  }
+
+  function el(tag, attrs, children) {
+    const node = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else if (k.startsWith("on") && typeof attrs[k] === "function") node.addEventListener(k.slice(2), attrs[k]);
+      else node.setAttribute(k, attrs[k]);
+    }
+    if (children) for (const c of children) if (c) node.appendChild(c);
+    return node;
+  }
+
+  function statusBadge(status, extraClass) {
+    return el("span", { class: "status-badge " + status.key + (extraClass ? " " + extraClass : "") }, [
+      el("span", { class: "dot" }),
+      document.createTextNode(status.label)
+    ]);
+  }
+
+  function progressBar(progress, status, expected, big) {
+    const track = el("div", { class: "progress-track" });
+    const fill = el("div", { class: "progress-fill " + status.key });
+    fill.style.width = Math.max(0, Math.min(100, progress)) + "%";
+    track.appendChild(fill);
+    if (typeof expected === "number") {
+      const marker = el("div", { class: "expected-marker" });
+      marker.style.left = Math.max(0, Math.min(100, expected)) + "%";
+      track.appendChild(marker);
+    }
+    return track;
+  }
+
+  function render() {
+    document.getElementById("cycleStart").value = state.cycleStart;
+    document.getElementById("cycleEnd").value = state.cycleEnd;
+
+    const expected = expectedPace();
+
+    // stats
+    const statRow = document.getElementById("statRow");
+    statRow.innerHTML = "";
+    const objCount = state.objectives.length;
+    const avgProgress = objCount ? state.objectives.reduce((a, o) => a + objProgress(o), 0) / objCount : 0;
+    const statuses = state.objectives.map(o => statusFor(objProgress(o), expected));
+    const onTrack = statuses.filter(s => s.key === "good").length;
+    const behind = statuses.filter(s => s.key === "critical" || s.key === "serious").length;
+    const avgStatus = statusFor(avgProgress, expected);
+
+    statRow.appendChild(makeStat("Objectives", String(objCount), null));
+    statRow.appendChild(makeStat("Avg. progress", fmtPct(avgProgress), avgStatus.key));
+    statRow.appendChild(makeStat("On track", onTrack + " / " + objCount, onTrack === objCount && objCount > 0 ? "good" : null));
+    statRow.appendChild(makeStat("Cycle", fmtDaysLeft(), behind > 0 ? "warning" : null));
+
+    // objectives
+    const container = document.getElementById("objectives");
+    container.innerHTML = "";
+    state.objectives.forEach((obj, i) => container.appendChild(renderObjective(obj, i, expected)));
+  }
+
+  function makeStat(label, value, statusClass) {
+    return el("div", { class: "stat-tile" }, [
+      el("div", { class: "label", text: label }),
+      el("div", { class: "value" + (statusClass ? " " + statusClass : ""), text: value })
+    ]);
+  }
+
+  function renderObjective(obj, index, expected) {
+    const progress = objProgress(obj);
+    const status = statusFor(progress, expected);
+
+    const titleInput = el("input", { class: "obj-title", value: obj.title, placeholder: "Objective title" });
+    titleInput.addEventListener("input", () => { obj.title = titleInput.value; save(); });
+
+    const delBtn = el("button", { class: "obj-del-btn", text: "✕", title: "Delete objective" });
+    delBtn.addEventListener("click", () => {
+      if (!confirm("Delete this objective and its key results?")) return;
+      state.objectives = state.objectives.filter(o => o.id !== obj.id);
+      save(); render();
+    });
+
+    const head = el("div", { class: "obj-head" }, [
+      el("div", { class: "obj-title-row" }, [
+        el("div", { class: "idx", text: String(index + 1) }),
+        titleInput
+      ]),
+      el("div", { style: "display:flex;align-items:center;gap:6px;" }, [statusBadge(status), delBtn])
+    ]);
+
+    const progressRow = el("div", { class: "progress-row" }, [
+      progressBar(progress, status, expected),
+      el("div", { class: "progress-pct", text: fmtPct(progress) })
+    ]);
+
+    const meta = el("div", { class: "progress-meta" },
+      [document.createTextNode("Expected pace: " + fmtPct(expected) + " · " + obj.keyResults.length + " key result" + (obj.keyResults.length === 1 ? "" : "s"))]
+    );
+
+    const krList = el("div", { class: "kr-list" });
+    obj.keyResults.forEach(kr => krList.appendChild(renderKR(obj, kr, expected)));
+
+    const addKrBtn = el("button", { class: "link-btn", text: "+ Add key result" });
+    addKrBtn.addEventListener("click", () => {
+      obj.keyResults.push({ id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] });
+      save(); render();
+    });
+
+    const card = el("div", { class: "obj-card" }, [head, progressRow, meta, krList, addKrBtn]);
+    return card;
+  }
+
+  function renderKR(obj, kr, expected) {
+    const progress = krProgress(kr);
+    const status = statusFor(progress, expected);
+
+    const titleInput = el("input", { class: "kr-title", value: kr.title, placeholder: "Key result" });
+    titleInput.addEventListener("input", () => { kr.title = titleInput.value; save(); });
+
+    const delBtn = el("button", { class: "kr-del", text: "✕", title: "Delete key result" });
+    delBtn.addEventListener("click", () => {
+      obj.keyResults = obj.keyResults.filter(k => k.id !== kr.id);
+      save(); render();
+    });
+
+    const top = el("div", { class: "kr-top" }, [titleInput, delBtn]);
+
+    const progRow = el("div", { class: "kr-progress-row" }, [
+      progressBar(progress, status, expected),
+      el("div", { class: "kr-pct", text: fmtPct(progress) }),
+      statusBadge(status, "kr-status-badge")
+    ]);
+
+    const body = el("div", {});
+
+    if (kr.type === "numeric") {
+      const currentInput = el("input", { type: "number", value: kr.current });
+      currentInput.addEventListener("input", () => { kr.current = Number(currentInput.value) || 0; save(); render(); });
+      const targetInput = el("input", { type: "number", value: kr.target });
+      targetInput.addEventListener("input", () => { kr.target = Number(targetInput.value) || 0; save(); render(); });
+      const unitInput = el("input", { type: "text", class: "unit", value: kr.unit || "" , placeholder: "unit"});
+      unitInput.addEventListener("input", () => { kr.unit = unitInput.value; save(); });
+
+      body.appendChild(el("div", { class: "kr-numeric-row" }, [
+        document.createTextNode("Current"), currentInput,
+        document.createTextNode("/ Target"), targetInput,
+        unitInput
+      ]));
+    } else {
+      const taskList = el("div", { class: "task-list" });
+      kr.tasks.forEach(task => {
+        const cb = el("input", { type: "checkbox" });
+        cb.checked = !!task.done;
+        cb.addEventListener("change", () => { task.done = cb.checked; save(); render(); });
+
+        const label = el("input", { type: "text", value: task.label, placeholder: "Task" });
+        label.addEventListener("input", () => { task.label = label.value; save(); });
+
+        const del = el("button", { class: "task-del", text: "✕" });
+        del.addEventListener("click", () => {
+          kr.tasks = kr.tasks.filter(t => t.id !== task.id);
+          save(); render();
+        });
+
+        taskList.appendChild(el("div", { class: "task-row" + (task.done ? " done" : "") }, [cb, label, del]));
+      });
+      body.appendChild(taskList);
+
+      const addTaskBtn = el("button", { class: "link-btn", text: "+ Add task" });
+      addTaskBtn.addEventListener("click", () => {
+        kr.tasks.push({ id: uid(), label: "New task", done: false });
+        save(); render();
+      });
+      body.appendChild(addTaskBtn);
+    }
+
+    const toggleWrap = el("div", { class: "type-toggle" });
+    const btnNumeric = el("button", { text: "Numeric", class: kr.type === "numeric" ? "active" : "" });
+    const btnTasks = el("button", { text: "Tasks", class: kr.type === "tasks" ? "active" : "" });
+    btnNumeric.addEventListener("click", () => { kr.type = "numeric"; save(); render(); });
+    btnTasks.addEventListener("click", () => { kr.type = "tasks"; save(); render(); });
+    toggleWrap.appendChild(btnNumeric);
+    toggleWrap.appendChild(btnTasks);
+
+    const footerRow = el("div", { class: "kr-footer-row" }, [toggleWrap]);
+
+    return el("div", { class: "kr-card" }, [top, progRow, body, footerRow]);
+  }
+
+  document.getElementById("cycleStart").addEventListener("change", (e) => { state.cycleStart = e.target.value; save(); render(); });
+  document.getElementById("cycleEnd").addEventListener("change", (e) => { state.cycleEnd = e.target.value; save(); render(); });
+  document.getElementById("addObjBtn").addEventListener("click", () => {
+    state.objectives.push({
+      id: uid(), title: "New objective",
+      keyResults: [{ id: uid(), title: "New key result", type: "numeric", current: 0, target: 100, unit: "%", tasks: [] }]
+    });
+    save(); render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
