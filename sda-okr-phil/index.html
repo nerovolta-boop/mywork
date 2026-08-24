@@ -55,21 +55,16 @@
     padding: 0 28px;
     height: 62px;
   }
-  .logo { display: flex; align-items: center; gap: 9px; margin-right: 6px; }
-  .logo .mark {
-    width: 30px; height: 30px; border-radius: 8px;
-    background: var(--pink);
-    color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 0.02em;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
+  .logo { display: flex; align-items: center; gap: 8px; margin-right: 6px; }
+  .logo .mark { flex-shrink: 0; display: block; }
   .logo .word {
     font-family: Georgia, "Times New Roman", serif;
-    font-style: italic;
-    font-weight: 700;
-    font-size: 19px;
+    font-weight: 800;
+    font-size: 21px;
     color: #fff;
+    letter-spacing: -0.01em;
   }
+  .logo .word .dot { color: var(--pink); }
   .quarter-select {
     display: flex; align-items: center; gap: 8px;
     background: var(--nav-bg-2);
@@ -354,8 +349,12 @@
 
 <nav class="top">
   <div class="logo">
-    <div class="mark">SDA</div>
-    <div class="word">Abodes</div>
+    <svg class="mark" width="34" height="38" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M100,8 L185,78 L185,205 L95,205 L55,255 L78,205 L15,205 L15,78 Z"
+        fill="none" stroke="var(--pink, #EC4899)" stroke-width="13" stroke-linejoin="round" stroke-linecap="round" />
+      <text x="100" y="150" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="800" font-size="64" fill="#ffffff">SDA</text>
+    </svg>
+    <div class="word">Abodes<span class="dot">.</span></div>
   </div>
   <button class="quarter-select" id="quarterBtn">
     <span id="quarterLabel">Q1 FY27 (current)</span>
