@@ -48,7 +48,12 @@
 
   /* ---- Top nav ---- */
   nav.top {
-    background: var(--nav-bg);
+    background-color: var(--nav-bg);
+    background-image:
+      radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1.5px),
+      linear-gradient(135deg, #9089c9 0%, #4d4098 32%, #241a6b 62%, #150d40 100%);
+    background-size: 20px 20px, 100% 100%;
+    background-position: 0 0, 0 0;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -260,7 +265,7 @@
   .btn-delete:hover { opacity: 0.9; }
 
   /* ---- KR sub-table ---- */
-  .kr-panel { background: #FAFAFC; border-bottom: 1px solid var(--border); }
+  .kr-panel { background: #fefaf3; border-bottom: 1px solid var(--border); }
   .kr-head-row {
     display: grid; grid-template-columns: 1fr 118px 140px 110px 120px 220px;
     gap: 10px; padding: 8px 20px 8px 56px;
@@ -283,6 +288,7 @@
     background: var(--stale-bg); color: var(--stale); font-size: 9.5px; font-weight: 800;
     letter-spacing: 0.04em; padding: 2px 7px; border-radius: 5px; flex-shrink: 0;
   }
+  .stale-tag.carried-tag { background: var(--blue-bg); color: var(--blue); }
   .kr-detail-input {
     display: block; width: 100%; font-size: 11.5px; color: var(--muted); background: transparent;
     border: none; font-family: inherit; margin-top: 3px; padding: 0;
@@ -408,11 +414,24 @@
     return "Q" + q + " FY" + String(fyEndYear).slice(-2);
   }
 
+  function addMonthsToDate(dateStr, n) {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setMonth(d.getMonth() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function nextQuarterInfo() {
+    const start = addMonthsToDate(state.cycleStart, 3);
+    const end = addMonthsToDate(state.cycleEnd, 3);
+    return { label: fiscalQuarterLabel(start), start, end };
+  }
+
   function defaultKR(title) {
     return {
       id: uid(), title: title || "New key result", detail: "", r: "", a: "",
       type: "numeric", current: 0, target: 100, unit: "%", tasks: [],
-      dueDate: "", checkInComment: "", updatedAt: nowISO(), overrideStatus: null
+      dueDate: "", checkInComment: "", updatedAt: nowISO(), overrideStatus: null,
+      quarterLabel: null
     };
   }
   function defaultObjective(title) {
@@ -441,6 +460,7 @@
       parsed.objectives.forEach(obj => (obj.keyResults || []).forEach(kr => {
         if (kr.r === undefined) kr.r = kr.owner || "";
         if (kr.a === undefined) kr.a = "";
+        if (kr.quarterLabel === undefined) kr.quarterLabel = null;
       }));
       return parsed;
     } catch (e) { return defaultState(); }
@@ -553,21 +573,37 @@
   }
 
   function wireDragReorder(shell) {
-    shell.addEventListener("dragover", (e) => {
-      const dragging = shell.querySelector(".obj-block.dragging");
-      if (!dragging) return;
-      e.preventDefault();
+    let draggingEl = null;
+
+    function onMouseMove(e) {
+      if (!draggingEl) return;
       const afterElement = getDragAfterElement(shell, e.clientY);
-      if (afterElement == null) shell.appendChild(dragging);
-      else shell.insertBefore(dragging, afterElement);
-    });
-    shell.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const dragging = shell.querySelector(".obj-block.dragging");
-      if (!dragging) return;
+      if (afterElement == null) shell.appendChild(draggingEl);
+      else if (afterElement !== draggingEl) shell.insertBefore(draggingEl, afterElement);
+    }
+    function onMouseUp() {
+      if (!draggingEl) return;
+      draggingEl.classList.remove("dragging");
       const orderedIds = [...shell.querySelectorAll(".obj-block")].map(b => b.dataset.id);
       state.objectives.sort((a, b) => orderedIds.indexOf(a.id) - orderedIds.indexOf(b.id));
+      draggingEl = null;
+      document.body.style.userSelect = "";
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
       save(); render();
+    }
+
+    shell.querySelectorAll(".obj-block").forEach((block) => {
+      const handle = block.querySelector(".drag-handle");
+      if (!handle) return;
+      handle.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        draggingEl = block;
+        block.classList.add("dragging");
+        document.body.style.userSelect = "none";
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+      });
     });
   }
 
@@ -655,14 +691,7 @@
   }
 
   function renderObjective(obj, index, expected) {
-    const wrap = el("div", { class: "obj-block", draggable: "true", "data-id": obj.id });
-    wrap.addEventListener("dragstart", (e) => {
-      if (!e.target.closest(".drag-handle")) { e.preventDefault(); return; }
-      wrap.classList.add("dragging");
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", obj.id);
-    });
-    wrap.addEventListener("dragend", () => wrap.classList.remove("dragging"));
+    const wrap = el("div", { class: "obj-block", "data-id": obj.id });
     const progress = objProgress(obj);
     const status = statusFor(progress, expected, null);
 
@@ -737,6 +766,9 @@
     titleInput.addEventListener("input", () => { kr.title = titleInput.value; save(); });
     const titleRow = el("div", { class: "kr-title-row" }, [titleInput]);
     if (stale) titleRow.appendChild(el("span", { class: "stale-tag", text: "STALE" }));
+    const currentQuarter = fiscalQuarterLabel(state.cycleStart);
+    const carried = kr.quarterLabel && kr.quarterLabel !== currentQuarter;
+    if (carried) titleRow.appendChild(el("span", { class: "stale-tag carried-tag", text: "→ " + kr.quarterLabel }));
 
     const detailInput = el("input", { class: "kr-detail-input", value: kr.detail, placeholder: "Add a detail line (baseline → target)…" });
     detailInput.addEventListener("input", () => { kr.detail = detailInput.value; save(); });
@@ -797,6 +829,17 @@
       kr.updatedAt = nowISO();
       save(); render();
     });
+    const nextQBtn = el("button", { class: "btn-ghost", text: "→ Next Qtr" });
+    nextQBtn.addEventListener("click", () => {
+      const next = nextQuarterInfo();
+      if (!confirm('Move "' + kr.title + '" to ' + next.label + '? It stays open and keeps its current progress — nothing is reset.')) return;
+      kr.quarterLabel = next.label;
+      if (kr.dueDate) kr.dueDate = next.end;
+      kr.checkInComment = (kr.checkInComment ? kr.checkInComment + " — " : "") + "Rolled over to " + next.label + " to finish remaining work.";
+      kr.updatedAt = nowISO();
+      save(); render();
+    });
+
     const delBtn = el("button", { class: "btn-delete", text: "Delete" });
     delBtn.addEventListener("click", () => {
       obj.keyResults = obj.keyResults.filter(k => k.id !== kr.id);
@@ -807,7 +850,7 @@
 
     const row = el("div", { class: "kr-row" + (stale ? " stale-row" : "") }, [
       main, raciGroup, progressCell, statusPill(status), dueInput,
-      el("div", { class: "kr-actions" }, [checkInBtn, editBtn, overrideBtn, delBtn])
+      el("div", { class: "kr-actions" }, [checkInBtn, editBtn, overrideBtn, nextQBtn, delBtn])
     ]);
 
     if (taskArea) {
