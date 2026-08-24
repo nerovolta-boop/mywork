@@ -204,8 +204,11 @@
     padding: 14px 20px;
     border-bottom: 1px solid var(--border);
   }
-  .objectives-shell .obj-row:last-of-type { border-bottom: none; }
+  .objectives-shell .obj-block:last-child .obj-row { border-bottom: none; }
   .drag-handle { color: var(--muted-2); font-size: 13px; cursor: grab; user-select: none; flex-shrink: 0; }
+  .drag-handle:active { cursor: grabbing; }
+  .obj-block.dragging { opacity: 0.4; }
+  .obj-block.dragging .obj-row { background: var(--card-bg); }
   .idx-badge {
     background: var(--role-neutral-bg); color: var(--navy);
     font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; flex-shrink: 0;
@@ -533,9 +536,39 @@
     const shell = document.getElementById("objectivesShell");
     shell.innerHTML = "";
     state.objectives.forEach((obj, i) => shell.appendChild(renderObjective(obj, i, expected)));
+    wireDragReorder(shell);
 
     document.getElementById("objCounter").textContent =
       "(" + objCount + " objective" + (objCount === 1 ? "" : "s") + " this quarter)";
+  }
+
+  function getDragAfterElement(shell, y) {
+    const blocks = [...shell.querySelectorAll(".obj-block:not(.dragging)")];
+    return blocks.reduce((closest, block) => {
+      const box = block.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) return { offset, element: block };
+      return closest;
+    }, { offset: -Infinity, element: null }).element;
+  }
+
+  function wireDragReorder(shell) {
+    shell.addEventListener("dragover", (e) => {
+      const dragging = shell.querySelector(".obj-block.dragging");
+      if (!dragging) return;
+      e.preventDefault();
+      const afterElement = getDragAfterElement(shell, e.clientY);
+      if (afterElement == null) shell.appendChild(dragging);
+      else shell.insertBefore(dragging, afterElement);
+    });
+    shell.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const dragging = shell.querySelector(".obj-block.dragging");
+      if (!dragging) return;
+      const orderedIds = [...shell.querySelectorAll(".obj-block")].map(b => b.dataset.id);
+      state.objectives.sort((a, b) => orderedIds.indexOf(a.id) - orderedIds.indexOf(b.id));
+      save(); render();
+    });
   }
 
   function statCard(label, value, valueClass, caption, dotColor) {
@@ -622,7 +655,14 @@
   }
 
   function renderObjective(obj, index, expected) {
-    const wrap = el("div", {});
+    const wrap = el("div", { class: "obj-block", draggable: "true", "data-id": obj.id });
+    wrap.addEventListener("dragstart", (e) => {
+      if (!e.target.closest(".drag-handle")) { e.preventDefault(); return; }
+      wrap.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", obj.id);
+    });
+    wrap.addEventListener("dragend", () => wrap.classList.remove("dragging"));
     const progress = objProgress(obj);
     const status = statusFor(progress, expected, null);
 
